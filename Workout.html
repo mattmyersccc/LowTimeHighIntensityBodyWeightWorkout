@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mike Mentzer's Heavy Duty: Interactive Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral (Stone, Amber) -->
+    <!-- Application Structure Plan: The SPA uses a thematic, top-down structure. It starts with the 'what' (the philosophy), moves to the 'how' (the core principles), and finally the 'example' (the interactive workout plan). This guides the user from theory to practical application. A final comparison chart synthesizes the key difference from traditional methods. This structure was chosen to build understanding progressively, making a complex theory digestible through interactive exploration rather than a static document dump. -->
+    <!-- Visualization & Content Choices: 1. Core Principles: Report Info -> 7 Core Principles. Goal -> Organize/Inform. Method -> Interactive HTML/CSS cards. Interaction -> JS onClick updates a single detail panel. Justification -> More engaging and less overwhelming than a long list. Method -> Vanilla JS DOM manipulation. 2. Workout Plan: Report Info -> 2-Day Split & Exercises. Goal -> Demonstrate Application. Method -> Clickable buttons/cards revealing nested info. Interaction -> JS onClick toggles visibility of exercise details. Justification -> Allows users to drill down into specifics without cluttering the UI. Method -> Vanilla JS DOM manipulation. 3. Training Comparison: Report Info -> Implicit comparison to high-volume. Goal -> Compare. Method -> Horizontal Bar Chart. Interaction -> Chart.js tooltips. Justification -> Provides a quick, quantitative visual summary of the core philosophical difference. Library -> Chart.js (Canvas). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+            color: #44403c; /* stone-700 */
+        }
+        .active-principle {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #d97706; /* amber-600 */
+        }
+        .active-workout-btn {
+            background-color: #a16207; /* amber-700 */
+            color: #ffffff;
+        }
+        .details-panel-enter {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .details-panel-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-stone-800">Mike Mentzer's "Heavy Duty"</h1>
+            <p class="mt-2 text-lg md:text-xl text-amber-700">An Interactive Guide to the Bodyweight Application</p>
+        </header>
+
+        <main>
+            <section id="intro" class="mb-16 bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-stone-800 mb-4">Rethinking Muscle Growth</h2>
+                <p class="text-stone-600 leading-relaxed">
+                    Mike Mentzer, a world-class bodybuilder, challenged conventional wisdom with a philosophy that was the opposite of what most people did: train less to build more. His "Heavy Duty" system is built on the idea that brief, infrequent, and high-intensity workouts are the most effective stimulus for muscle growth. This guide explores his core principles and demonstrates how they can be applied even without weights, using only your bodyweight.
+                </p>
+            </section>
+
+            <section id="principles" class="mb-16">
+                <h2 class="text-3xl font-bold text-center text-stone-800 mb-8">The 7 Core Principles</h2>
+                <p class="text-center text-stone-600 max-w-3xl mx-auto mb-10">
+                    Mentzer's philosophy is more than just lifting heavy; it's a systematic approach to training. Click on each principle below to understand the "why" behind his revolutionary method. Each concept builds upon the others to create a cohesive and efficient system for muscle development.
+                </p>
+                <div id="principles-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+                </div>
+
+                <div id="principle-details" class="bg-white p-6 rounded-lg shadow-md min-h-[150px] transition-all duration-300">
+                </div>
+            </section>
+
+            <section id="workout" class="mb-16">
+                <h2 class="text-3xl font-bold text-center text-stone-800 mb-8">The Bodyweight Workout Plan</h2>
+                 <p class="text-center text-stone-600 max-w-3xl mx-auto mb-10">
+                    This section translates theory into practice. Here you can explore a sample two-day split routine that applies the Heavy Duty principles using only bodyweight exercises. Select a workout to see the exercises, then click on an individual exercise for detailed instructions and notes on applying the core principles.
+                </p>
+                <div class="flex justify-center gap-4 mb-8">
+                    <button data-workout="A" class="workout-btn px-6 py-3 bg-amber-600 text-white font-semibold rounded-lg shadow-md hover:bg-amber-700 transition-colors duration-300">Workout A: Chest & Back</button>
+                    <button data-workout="B" class="workout-btn px-6 py-3 bg-stone-500 text-white font-semibold rounded-lg shadow-md hover:bg-stone-600 transition-colors duration-300">Workout B: Legs & Arms</button>
+                </div>
+                <div id="workout-details-container" class="space-y-4">
+                </div>
+            </section>
+
+            <section id="comparison" class="mb-8">
+                 <h2 class="text-3xl font-bold text-center text-stone-800 mb-8">Philosophy at a Glance: A Comparison</h2>
+                 <p class="text-center text-stone-600 max-w-3xl mx-auto mb-10">
+                    To fully appreciate the uniqueness of Mentzer's approach, it's helpful to see it side-by-side with a traditional high-volume training style. This chart visualizes the fundamental differences in key training variables, highlighting why "Heavy Duty" is a paradigm shift in workout philosophy.
+                </p>
+                <div class="bg-white p-4 md:p-6 rounded-lg shadow-md">
+                    <div class="chart-container">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 pt-8 border-t border-stone-300">
+            <p class="text-stone-500 text-sm">This interactive guide is for informational purposes only. Consult with a qualified professional before beginning any new exercise program. The principles discussed are based on Mike Mentzer's "Heavy Duty" philosophy.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const principlesData = [
+                { id: 'intensity', title: 'High-Intensity, Low Volume', icon: '⚡', description: 'The stimulus for growth is intensity, not duration. One single, all-out set per exercise, taken to absolute muscular failure, is all that is required to trigger the growth mechanism. More is not better; better is better.' },
+                { id: 'failure', title: 'Train to Failure', icon: '💪', description: 'Training to failure means continuing a set until you physically cannot complete another repetition in good form. This ensures you\'ve recruited the maximum number of muscle fibers, providing a powerful signal for the body to adapt and grow stronger.' },
+                { id: 'recovery', title: 'Prioritize Recovery', icon: '🛌', description: 'Muscles grow during rest, not in the gym. Mentzer advocated for significant rest periods (4-7 days) between training the same body part to allow for full recovery and supercompensation, preventing the counterproductive state of overtraining.' },
+                { id: 'lessismore', title: 'Less Is More', icon: '📉', description: 'This principle summarizes the entire philosophy. By reducing workout volume (sets) and frequency, you conserve the body\'s limited recovery resources, allowing them to be fully dedicated to building muscle in response to the intense stimulus you\'ve provided.' },
+                { id: 'overload', title: 'Utilize Progressive Overload', icon: '📈', description: 'To continue making progress, you must consistently increase the stress on your muscles. This means striving to add more reps or, when using weights, more weight over time. For bodyweight, this is achieved by moving to harder variations or slowing the tempo.' },
+                { id: 'compound', title: 'Use Compound Movements', icon: '🏋️', description: 'Mentzer\'s routines focused on heavy, multi-joint exercises like squats, presses, and rows. These movements are highly efficient, stimulating maximum muscle mass in minimum time by engaging multiple muscle groups simultaneously.' },
+                { id: 'focus', title: 'Cultivate Mental Focus', icon: '🧠', description: 'The mind-muscle connection is critical. Intense concentration is required for every single rep of your one working set. This focus ensures perfect form, maximizes muscle fiber recruitment, and is essential for pushing through the pain barrier to true failure.' }
+            ];
+
+            const workoutsData = {
+                A: {
+                    title: "Workout A: Chest & Back",
+                    exercises: [
+                        { name: "Push-ups", instructions: "Place hands shoulder-width apart. Lower your body until your chest nearly touches the floor, keeping your body in a straight line. Push back to the starting position.", principles: "To apply progressive overload, elevate your feet (decline push-ups) or slow down the tempo (4 seconds down, 1 second pause, 4 seconds up). Go until you cannot complete another rep." },
+                        { name: "Bodyweight Rows", instructions: "Lie under a sturdy table, grabbing the edge. Keeping your body straight, pull your chest towards the table edge. Lower yourself slowly.", principles: "To make it harder, straighten your legs and place your heels on the floor. The goal is failure; the last rep should be an immense struggle." },
+                        { name: "Dips", instructions: "Use two sturdy chairs or parallel bars. Lower your body until your shoulders are below your elbows. Press back up to the starting position.", principles: "Focus on a full range of motion. To add intensity without weight, pause at the bottom of the movement for 2-3 seconds on each rep." }
+                    ]
+                },
+                B: {
+                    title: "Workout B: Legs & Arms",
+                    exercises: [
+                        { name: "Squats", instructions: "Stand with feet shoulder-width apart. Lower your hips as if sitting in a chair, keeping your chest up and back straight. Go as low as possible.", principles: "Progress to one-legged squats (pistol squats) or Bulgarian split squats to increase intensity. Remember, one set to failure is the goal." },
+                        { name: "Pike Push-ups", instructions: "From a push-up position, walk your feet in, raising your hips into an inverted 'V'. Lower the top of your head towards the floor.", principles: "This targets the shoulders. To make it harder, elevate your feet on a chair or step. The intensity should make a second set unthinkable." },
+                        { name: "Towel Bicep Curls", instructions: "Loop a towel under one foot. Hold the ends of the towel and curl upwards, creating resistance with your leg. Perform on each arm.", principles: "Maintain constant tension throughout the set. Your leg provides the resistance; fight against it on both the concentric (up) and eccentric (down) phases to reach failure." }
+                    ]
+                }
+            };
+
+            const principlesGrid = document.getElementById('principles-grid');
+            const principleDetails = document.getElementById('principle-details');
+            const workoutBtns = document.querySelectorAll('.workout-btn');
+            const workoutDetailsContainer = document.getElementById('workout-details-container');
+            
+            function displayPrinciples() {
+                principlesGrid.innerHTML = principlesData.map(p => `
+                    <button data-id="${p.id}" class="principle-btn p-4 bg-white rounded-lg shadow-md border-2 border-transparent hover:border-amber-600 transition-all duration-300 flex flex-col items-center text-center">
+                        <span class="text-3xl mb-2">${p.icon}</span>
+                        <span class="font-semibold text-sm">${p.title}</span>
+                    </button>
+                `).join('');
+            }
+
+            function updatePrincipleDetails(id) {
+                const principle = principlesData.find(p => p.id === id);
+                if (principle) {
+                    principleDetails.innerHTML = `
+                        <div class="details-panel-enter">
+                            <h3 class="text-xl font-bold text-amber-700 mb-2">${principle.title}</h3>
+                            <p class="text-stone-600">${principle.description}</p>
+                        </div>
+                    `;
+                    setTimeout(() => principleDetails.firstElementChild.classList.add('details-panel-enter-active'), 10);
+                }
+            }
+
+            function updateActivePrinciple(id) {
+                document.querySelectorAll('.principle-btn').forEach(btn => {
+                    btn.classList.toggle('active-principle', btn.dataset.id === id);
+                });
+            }
+
+            principlesGrid.addEventListener('click', (e) => {
+                const btn = e.target.closest('.principle-btn');
+                if (btn) {
+                    const { id } = btn.dataset;
+                    updatePrincipleDetails(id);
+                    updateActivePrinciple(id);
+                }
+            });
+            
+            workoutBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const workoutId = btn.dataset.workout;
+                    displayWorkoutDetails(workoutId);
+                    
+                    workoutBtns.forEach(b => b.classList.remove('active-workout-btn'));
+                    btn.classList.add('active-workout-btn');
+                });
+            });
+
+            function displayWorkoutDetails(workoutId) {
+                const workout = workoutsData[workoutId];
+                if (!workout) return;
+
+                workoutDetailsContainer.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-md details-panel-enter">
+                        <h3 class="text-2xl font-bold text-stone-800 mb-6">${workout.title}</h3>
+                        <div class="space-y-4">
+                            ${workout.exercises.map(ex => `
+                                <details class="group bg-stone-50 p-4 rounded-lg cursor-pointer">
+                                    <summary class="font-semibold text-lg text-stone-700 group-hover:text-amber-700 list-none flex justify-between items-center">
+                                        ${ex.name}
+                                        <span class="text-amber-600 transform transition-transform duration-300 group-open:rotate-90">&#9654;</span>
+                                    </summary>
+                                    <div class="mt-4 text-stone-600 border-l-2 border-amber-500 pl-4 space-y-3">
+                                        <p><strong>Instructions:</strong> ${ex.instructions}</p>
+                                        <p><strong>Applying Principles:</strong> ${ex.principles}</p>
+                                    </div>
+                                </details>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                 setTimeout(() => workoutDetailsContainer.firstElementChild.classList.add('details-panel-enter-active'), 10);
+            }
+
+            function createComparisonChart() {
+                const ctx = document.getElementById('comparisonChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Weekly Sets (per muscle)', 'Session Duration', 'Frequency (per muscle)'],
+                        datasets: [
+                            {
+                                label: 'Traditional High-Volume',
+                                data: [15, 60, 2],
+                                backgroundColor: '#a8a29e', // stone-400
+                                borderColor: '#78716c', // stone-500
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Mentzer High-Intensity',
+                                data: [1, 30, 0.25], // 1 set every 4-7 days
+                                backgroundColor: '#f59e0b', // amber-500
+                                borderColor: '#b45309', // amber-700
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Value (Sets / Minutes / Times per Week)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null) {
+                                            if(context.label === 'Weekly Sets (per muscle)'){
+                                                label += `${context.parsed.x} sets`;
+                                            } else if (context.label === 'Session Duration'){
+                                                label += `${context.parsed.x} min`;
+                                            } else {
+                                                label += `${context.parsed.x} times/wk`;
+                                            }
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            displayPrinciples();
+            updatePrincipleDetails('intensity');
+            updateActivePrinciple('intensity');
+            createComparisonChart();
+        });
+    </script>
+</body>
+</html>
